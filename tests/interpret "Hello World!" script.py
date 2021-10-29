@@ -1,13 +1,18 @@
+import os
 import subprocess
 import sys
 
 success = False
 
 print("Testing interpret \"Hello World\" script...")
-cmd = ["python3", "../J.py", "-i"]
+
+cmd = ["python3", "../J.py", "-i", "interpret - \"Hello World!\" script/script.J"]
+env = {}
+env.update(os.environ)
+print(env)
 try:
     print(f"Running system command \"{cmd}\"")
-    subprocess.run(cmd, check=True)
+    subprocess.run(cmd, check=True, env=env)
     sys.stdout.flush()
 
     success = True
