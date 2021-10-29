@@ -10,6 +10,7 @@ if __name__ == '__main__':
     import betterLogger
     setup_logger = betterLogger.get_logger("Setup")
 
-    setup_logger.log_info("Hello World!")
-
+    import sys
+    args = sys.argv
+    setup_logger.log_trace(f"Ran with args - {args}")
 
