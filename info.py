@@ -1,0 +1,5 @@
+name = "J"
+version = "0.0.1"
+author = "GreenJon902"
+author_email = "GreenJon902@gmail.com"
+url = "https://github.com/GreenJon902/J"
