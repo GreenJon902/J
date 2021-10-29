@@ -1,5 +1,5 @@
 import subprocess
-
+import sys
 
 success = False
 
@@ -8,6 +8,7 @@ cmd = ["python3", "../J.py", "-i"]
 try:
     print(f"Running system command \"{cmd}\"")
     subprocess.run(cmd, check=True)
+    sys.stdout.flush()
 
     success = True
     print("\033[92mSuccess!\033[0m")
