@@ -12,6 +12,7 @@ if __name__ == '__main__':
 
     import sys
     args = sys.argv
-    print(sys.argv, os.environ)
     setup_logger.log_trace(f"Ran with args - {args}")
 
+    import arguments
+    arguments.parse(args)
