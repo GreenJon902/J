@@ -1,28 +1,56 @@
+import sys
+
 import betterLogger
 
 logger = betterLogger.get_logger("Arguments")
 
 convert_short_to_long_argument = {
-    "-i": "--in_file",
-    "-o": "--out_file"
+    "-i": "--interpret",
+
+    "-c": "--compile",
+    "-in": "--in_file",
+    "-out": "--out_file"
 }
 
 
-def parse(args):
+def parse(args: list[str]):
     logger.push_logger_name("parse")
     logger.log_debug("Parsing Arguments")
 
-    new_args = {"path": args[0]}
 
-    for key_index in range(1, len(args), 2):
-        value_index = key_index + 1
+    path = args.pop(0)
 
-        key, value = (args[key_index] if args[key_index] in convert_short_to_long_argument.values() else
-                        convert_short_to_long_argument[args[key_index]]).replace("--", ""), \
-                     args[value_index]
+    args2 = list()
+    for arg in args:
 
-        logger.log_dump(f"Get key, value - {key}, {value}")
-        new_args[key] = value
 
-    logger.log_dump(f"Parsed args are {new_args}")
+        args2.append(arg if not any([arg == k or arg == v for k, v in convert_short_to_long_argument.items()]) else
+                     (arg if arg in convert_short_to_long_argument.values() else
+                      convert_short_to_long_argument[arg]).replace("--", ""))
+    args = args2
+    logger.log_dump(f"Parsed args into {args} where path={path}")
+
+
+    instruction: list[str]
+    if len(args) == 0:
+        logger.log_error("No instruction given, run \"J.py -h\" if you need help!")
+        sys.exit()
+
+    elif args[0] == "interpret":
+        if len(args) == 2:
+            instruction = ["interpret", args[1]]
+
+        elif len(args) == 3:
+            instruction = ["interpret", args[2]]
+
+        else:
+            logger.log_error("Too many or too little arguments given for instruction \"interpret\", run \"J.py\" -h if "
+                             "you need help!")
+            sys.exit()
+
+    else:
+        logger.log_error("Invalid instruction, run \"J.py -h\" if you need help!")
+        sys.exit()
+
+    logger.log_debug(f"Instruction is {instruction}")
     logger.pop_logger_name()
