@@ -1,1 +1,1 @@
-Logging>info("Hello World!")
+p_Logging>f_info_n("Hello World!");
