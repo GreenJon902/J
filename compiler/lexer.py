@@ -1,9 +1,5 @@
-from betterLogger import ClassWithLogger, push_name_to_logger_name_stack
+import pprint
 
-from compiler import token_types
-from compiler.token_types import IDENTIFIER, OPERATOR, valid_identifier_type_characters, \
-    identifier_and_type_separator_character, valid_identifier_characters, INTEGER, FLOAT, float_required_character, \
-    ignored_characters, valid_float_characters, newline_characters, NEWLINE
 from betterLogger import ClassWithLogger, push_name_to_logger_name_stack
 
 from compiler import token_types
@@ -55,8 +51,7 @@ class Lexer(ClassWithLogger):
                 self.current_location += self.amount_to_skip
                 self.amount_to_skip = 0
 
-        newline = "\n"
-        self.log_debug(f"Got tokens:\n{newline.join([str(t) for t in tokens])}")
+        self.log_debug(f"Got tokens:\n{pprint.pformat(tokens)}")
 
         return tokens
 

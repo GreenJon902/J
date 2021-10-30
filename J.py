@@ -1,3 +1,5 @@
+import pprint
+
 if __name__ == '__main__':
     import os
     import info
@@ -19,8 +21,14 @@ if __name__ == '__main__':
     instruction, args = instruction_and_args[0], instruction_and_args[1:]
     setup_logger.log_dump(f"Split into instruction={instruction}, args={args}")
 
+    J_logger = betterLogger.get_logger("J")
+
     if instruction == "interpret":
         J_code = open(args[0], "r").read()
+        J_logger.log_info("Loaded J file")
+        J_logger.log_debug(f"Contents are:\n{J_code}")
 
         from compiler.lexer import Lexer
         tokens = Lexer(J_code, args[0]).get_tokens()
+        J_logger.log_info("Tokenized J file")
+        J_logger.log_debug(f"Tokens are:\n{pprint.pformat(tokens)}")
