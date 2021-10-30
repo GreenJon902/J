@@ -9,6 +9,19 @@ if __name__ == '__main__':
     os.environ["APPAUTHOR"] = info.author
     os.environ["APPVERSION"] = info.version
 
+    log_names_to_shorten = {
+        "get_token_at_current_location": "gtacl",
+        "get_if_current_location_is_newline": "gicli_newline",
+        "get_if_current_location_is_operator": "gicli_operator",
+        "get_if_current_location_is_float": "gicli_float",
+        "get_if_current_location_is_integer": "gicli_integer",
+        "get_if_current_location_is_identifier": "gicli_identifier",
+        "is_current_location_ignored": "icli"
+    }
+    os.environ["LOG_NAMES_TO_SHORTEN"] = repr(dict(eval(os.environ["LOG_NAMES_TO_SHORTEN"])).update(
+        log_names_to_shorten)) if os.environ.get("LOG_NAMES_TO_SHORTEN") is not None else repr(log_names_to_shorten)
+
+
     import betterLogger
     setup_logger = betterLogger.get_logger("Setup")
 
