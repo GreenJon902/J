@@ -23,4 +23,4 @@ if __name__ == '__main__':
         J_code = open(args[0], "r").read()
 
         from compiler.lexer import Lexer
-        token = Lexer(J_code, args[0]).get_tokens()
+        tokens = Lexer(J_code, args[0]).get_tokens()
