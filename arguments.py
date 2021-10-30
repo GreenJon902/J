@@ -32,7 +32,7 @@ def parse(args: list[str]):
 
 
 
-    instruction: list[str]
+    instruction_and_args: list[str]
     # No Instruction  --------------------------------------------------------------------------------------------------
     if len(args) == 0:
         logger.log_error("No instruction given, run \"J.py -h\" if you need help!")
@@ -42,10 +42,10 @@ def parse(args: list[str]):
     # Interpret --------------------------------------------------------------------------------------------------------
     elif args[0] == "interpret":
         if len(args) == 2:
-            instruction = ["interpret", args[1]]
+            instruction_and_args = ["interpret", args[1]]
         elif len(args) == 3:
             if args[1] == "in_file":
-                instruction = ["interpret", args[2]]
+                instruction_and_args = ["interpret", args[2]]
             else:
                 logger.log_error("interpret can only take one positional argument - \"-in  --in_file\", run \"J.py\" "
                                  "-h if you need help!")
@@ -60,5 +60,7 @@ def parse(args: list[str]):
         logger.log_error("Invalid instruction, run \"J.py -h\" if you need help!")
         sys.exit()
 
-    logger.log_debug(f"Instruction is {instruction}")
+    logger.log_debug(f"Instruction and args is {instruction_and_args}")
     logger.pop_logger_name()
+
+    return instruction_and_args
