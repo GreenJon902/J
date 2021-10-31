@@ -1,4 +1,4 @@
-from betterLogger import ClassWithLogger
+from betterLogger import ClassWithLogger, push_name_to_logger_name_stack
 
 
 class Parser(ClassWithLogger):
@@ -6,13 +6,17 @@ class Parser(ClassWithLogger):
     file_path: str
     current_location: int = 0
 
-    def __init__(self, tokens, file_path):
+    def __init__(self, tokens, metadata: dict = None):
         ClassWithLogger.__init__(self)
 
+        if metadata is None:
+            metadata = {}
+        self.file_path = metadata.pop("file_path", "UnnamedFile")
+
         self.tokens = tokens
-        self.file_path = file_path
 
         self.push_logger_name(f"\"{self.file_path}\"")
 
+    @push_name_to_logger_name_stack
     def get_ast(self):
         pass

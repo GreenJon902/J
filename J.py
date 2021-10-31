@@ -42,12 +42,12 @@ if __name__ == '__main__':
         J_logger.log_debug(f"Contents are:\n{J_code}")
 
         from compiler.lexer import Lexer
-        tokens = Lexer(J_code, args[0]).get_tokens()
+        tokens = Lexer(J_code, metadata={"file_path": args[0]}).get_tokens()
         J_logger.log_info("Tokenized J file")
         J_logger.log_debug(f"Tokens are:\n{pprint.pformat(tokens)}")
 
         from compiler.parser import Parser
-        ast = Parser(tokens, args[0]).get_ast()
+        ast = Parser(tokens, metadata={"file_path": args[0]}).get_ast()
         J_logger.log_info("Parsed tokens from J file")
 
         J_logger.log_debug(f"Parsed tokens are:\n{pprint.pformat(ast)}")

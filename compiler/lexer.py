@@ -14,11 +14,14 @@ class Lexer(ClassWithLogger):
     current_location: int = 0
     amount_to_skip: int = 0
 
-    def __init__(self, J_code, file_path):
+    def __init__(self, J_code, metadata: dict = None):
         ClassWithLogger.__init__(self)
 
+        if metadata is None:
+            metadata = {}
+        self.file_path = metadata.pop("file_path", "UnnamedFile")
+
         self.J_code = J_code
-        self.file_path = file_path
 
         self.push_logger_name(f"\"{self.file_path}\"")
 
