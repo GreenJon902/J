@@ -50,4 +50,4 @@ if __name__ == '__main__':
         ast = Parser(tokens, metadata={"file_path": args[0]}).get_ast()
         J_logger.log_info("Parsed tokens from J file")
 
-        J_logger.log_debug(f"Parsed tokens are:\n{pprint.pformat(ast)}")
+        J_logger.log_debug(f"Parsed tokens are:\n{ast}")

@@ -30,9 +30,9 @@ class Parser(ClassWithLogger):
     def get_ast(self):
         self.log_debug("Getting ast for self")
         self.log_trace(f"Tokens are:\n{pprint.pformat(self.tokens)}")
-        ast = list()
-        current_node = Node(type="Line")
-        ast.append(current_node)
+
+        fileNode = Node(type="File")
+        current_node = fileNode
 
         self.current_location = 0
         while self.current_location < len(self.tokens):
@@ -73,15 +73,16 @@ class Parser(ClassWithLogger):
                 current_node = node
 
             elif self.tokens[self.current_location].type == NEWLINE:
-                self.log_debug(f"Line was:\n{''.join([str(node) for node in ast])}")
+                current_node = fileNode
+                self.log_dump(f"Finished line")
                 self.bump_current_location(1)
-                current_node = Node(type="Line")
-                ast.append(current_node)
 
             else:
                 self.log_critical(f"Could not identify what the tokens at {self.current_location} meant")
                 self.bump_current_location(1)  # FIXME: This is for testing
 
+        self.log_debug(f"Got ast:\n{fileNode}")
+        return fileNode
 
     def parse_expression(self, special_end=NEWLINE):
         self.push_logger_name(f"parse_expression({self.current_location})")
