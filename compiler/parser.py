@@ -19,4 +19,12 @@ class Parser(ClassWithLogger):
 
     @push_name_to_logger_name_stack
     def get_ast(self):
-        pass
+        self.log_debug("Getting ast for self")
+        self.log_trace(f"Tokens is:\n{self.tokens}")
+        ast = list()
+
+        self.current_location = 0
+        while self.current_location < len(self.tokens):
+            self.log_dump(f"Current location is {self.current_location} which is "
+                          f"\"{self.tokens[self.current_location]}\"")
+            self.current_location += 1
