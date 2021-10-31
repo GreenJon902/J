@@ -44,7 +44,11 @@ class Parser(ClassWithLogger):
                     and self.tokens[self.current_location + 2].type == IDENTIFIER):
                 self.log_debug("Current location identified as getAttribute")
 
+                node = Node(self.tokens[self.current_location], [Node(self.tokens[self.current_location + 1],
+                                                                      [self.tokens[self.current_location + 2]])])
+                self.log_debug(f"New Node is\n{node}")
                 self.bump_current_location(2)
+
 
             # Get call function ----------------------------------------------------------------------------------------
             elif (self.tokens[self.current_location].type == IDENTIFIER
@@ -52,11 +56,14 @@ class Parser(ClassWithLogger):
                     and self.tokens[self.current_location + 1].contents == callOpenOperator):
                 self.log_debug("Current location identified as call")
 
+
+                token_before_bump_and_parse_expression = self.tokens[self.current_location]
+
                 self.bump_current_location(2)
                 arguments_ast = self.parse_expression(special_end=callCloseOperator)
                 self.log_dump(f"Got list of arguments as ast: \n{arguments_ast}")
 
-                node = Node(self.tokens[self.current_location], [arguments_ast])
+                node = Node(token_before_bump_and_parse_expression, [arguments_ast])
                 self.log_debug(f"New Node is\n{node}")
 
 
