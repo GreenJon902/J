@@ -75,7 +75,8 @@ class Parser(ClassWithLogger):
             elif self.tokens[self.current_location].type == NEWLINE:
                 self.log_debug(f"Line was:\n{''.join([str(node) for node in ast])}")
                 self.bump_current_location(1)
-
+                current_node = Node(type="Line")
+                ast.append(current_node)
 
             else:
                 self.log_critical(f"Could not identify what the tokens at {self.current_location} meant")
