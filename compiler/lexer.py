@@ -2,10 +2,12 @@ import pprint
 
 from betterLogger import ClassWithLogger, push_name_to_logger_name_stack
 
-from compiler import token_types
-from compiler.token_types import IDENTIFIER, OPERATOR, valid_identifier_type_characters, \
-    identifier_and_type_separator_character, valid_identifier_characters, INTEGER, FLOAT, float_required_character, \
-    ignored_characters, valid_float_characters, newline_characters, NEWLINE
+import compiler.grammar
+from compiler.grammar import valid_identifier_characters, valid_identifier_type_characters, \
+    identifier_and_type_separator_character, float_required_character, valid_float_characters, newline_characters, \
+    ignored_characters
+from compiler.structures import Token
+from compiler.token_types import IDENTIFIER, OPERATOR, INTEGER, FLOAT, NEWLINE
 
 
 class Lexer(ClassWithLogger):
@@ -78,7 +80,7 @@ class Lexer(ClassWithLogger):
         for token_type_to_check, function in token_types_to_check:
             token_value = function()
             if ret is None and token_value is not None:
-                ret = token_type_to_check, token_value
+                ret = Token(token_type_to_check, token_value)
                 self.log_debug(f"Token at {self.current_location} was an {token_type_to_check}, the value of the token "
                                f"was \"{token_value}\"")
 
@@ -127,7 +129,7 @@ class Lexer(ClassWithLogger):
         self.push_logger_name(f"get_if_current_location_is_operator({self.current_location})")
 
         ret = None
-        for operator in token_types.operators:
+        for operator in compiler.grammar.operators:
             fail = False
 
             char_index = 0

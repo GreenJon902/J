@@ -1,10 +1,16 @@
+import pprint
+
 from betterLogger import ClassWithLogger, push_name_to_logger_name_stack
+
+from compiler.structures import Token
+from compiler.token_types import IDENTIFIER, OPERATOR
 
 
 class Parser(ClassWithLogger):
-    tokens: list[tuple[str, str]]
+    tokens: list[Token]
     file_path: str
     current_location: int = 0
+
 
     def __init__(self, tokens, metadata: dict = None):
         ClassWithLogger.__init__(self)
@@ -17,10 +23,11 @@ class Parser(ClassWithLogger):
 
         self.push_logger_name(f"\"{self.file_path}\"")
 
+
     @push_name_to_logger_name_stack
     def get_ast(self):
         self.log_debug("Getting ast for self")
-        self.log_trace(f"Tokens is:\n{self.tokens}")
+        self.log_trace(f"Tokens are:\n{pprint.pformat(self.tokens)}")
         ast = list()
 
         self.current_location = 0
