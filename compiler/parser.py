@@ -31,7 +31,7 @@ class Parser(ClassWithLogger):
         self.log_debug("Getting ast for self")
         self.log_trace(f"Tokens are:\n{pprint.pformat(self.tokens)}")
 
-        fileNode = Node(type="File")
+        fileNode = Node(type=f"\"{self.file_path}\"")
         current_node = fileNode
 
         self.current_location = 0
