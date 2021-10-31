@@ -26,9 +26,10 @@ class Node:
         self.contents = contents
 
     def __repr__(self):
-        return f"Node(type={self.type}, contents=\"{self.contents}\")"
+        return f"Node(type={repr(self.type)}, contents=\"{repr(self.contents)}\")"
 
     def __str__(self, indent=0):
-        return f"{self.type}:\n" + "".join([("    " * (indent + 1)) + (child.__str__(indent=indent + 1) if
-                                                                      isinstance(child, Node) else str(child)) +
-                                           new_line for child in self.contents])
+        return f"{self.type}:\n" + "".join([("    " * (indent + 1)) + ((child.__str__(indent=indent + 1) if
+                                                                        isinstance(child, Node) else str(child)) +
+                                                                       new_line) for child in self.contents]).\
+            removesuffix("\n")

@@ -31,6 +31,8 @@ class Parser(ClassWithLogger):
         self.log_debug("Getting ast for self")
         self.log_trace(f"Tokens are:\n{pprint.pformat(self.tokens)}")
         ast = list()
+        current_node = Node(type="Line")
+        ast.append(current_node)
 
         self.current_location = 0
         while self.current_location < len(self.tokens):
@@ -44,9 +46,11 @@ class Parser(ClassWithLogger):
                     and self.tokens[self.current_location + 2].type == IDENTIFIER):
                 self.log_debug("Current location identified as getAttribute")
 
-                node = Node(self.tokens[self.current_location], [Node(self.tokens[self.current_location + 1],
-                                                                      [self.tokens[self.current_location + 2]])])
+                getAttributeNode = Node(self.tokens[self.current_location + 1], [])
+                node = Node(self.tokens[self.current_location], [getAttributeNode])
                 self.log_debug(f"New Node is\n{node}")
+                current_node.contents.append(node)
+                current_node = getAttributeNode
                 self.bump_current_location(2)
 
 
@@ -65,6 +69,12 @@ class Parser(ClassWithLogger):
 
                 node = Node(token_before_bump_and_parse_expression, [arguments_ast])
                 self.log_debug(f"New Node is\n{node}")
+                current_node.contents.append(node)
+                current_node = node
+
+            elif self.tokens[self.current_location].type == NEWLINE:
+                self.log_debug(f"Line was:\n{''.join([str(node) for node in ast])}")
+                self.bump_current_location(1)
 
 
             else:
