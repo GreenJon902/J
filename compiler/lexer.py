@@ -141,6 +141,7 @@ class Lexer(ClassWithLogger):
             if not fail:
                 self.amount_to_skip += (char_index + 1)
                 ret = operator
+                break
 
         self.log_trace(f"Returning {ret}")
         self.pop_logger_name()
