@@ -1,9 +1,22 @@
 # Operators ------------------------------------------------------------------------------------------------------------
-operators = [
-    ">",       # Same as python . - __getattr__
-    "(", ")",  # Same as python - call function
+getAttributeOperator = ">"
+callOpenOperator = "("
+callCloseOperator = ")"
+evaluateSectionBeforeOpenOperator = "("
+evaluateSectionBeforeCloseOperator = ")"
 
-    "+",       # Same as python - add too integers
+additionOperator = "+"
+
+arithmeticOperators = [
+    additionOperator
+]
+
+operators = [
+    getAttributeOperator,  # Same as python . - __getattr__
+    callOpenOperator, callCloseOperator,  # Same as python - call function
+    evaluateSectionBeforeOpenOperator, evaluateSectionBeforeCloseOperator,  # Same as python -
+
+    "+",  # Same as python - add too integers
 ]
 # Identifier -----------------------------------------------------------------------------------------------------------
 valid_identifier_characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
