@@ -98,13 +98,22 @@ class Parser(ClassWithLogger):
         # Arithmetic
         elif (self.tokens[self.current_location].type == INTEGER
                 and self.tokens[self.current_location + 1].type == OPERATOR
-                and self.tokens[self.current_location + 1].contents in arithmeticOperators):
-            if (self.tokens[self.current_location + 2].type == INTEGER
-                    and (self.tokens[self.current_location + 3].type == special_end
-                            or self.tokens[self.current_location + 3].contents == special_end)):
-                ret = Node(self.tokens[self.current_location + 1],
-                           (self.tokens[self.current_location], self.tokens[self.current_location + 2]))
-                self.bump_current_location(4)
+                and self.tokens[self.current_location + 1].contents in arithmeticOperators):  # 1 +
+            if self.tokens[self.current_location + 2].type == INTEGER:
+                if (self.tokens[self.current_location + 3].type == special_end
+                        or self.tokens[self.current_location + 3].contents == special_end):  # 1 + 1
+                    ret = Node(self.tokens[self.current_location + 1],
+                               (self.tokens[self.current_location], self.tokens[self.current_location + 2]))
+                    self.bump_current_location(4)
+
+                elif (self.tokens[self.current_location + 3].type == OPERATOR
+                        and self.tokens[self.current_location + 3].contents in arithmeticOperators):  # 1 + 1 +
+                    pass
+
+                else:
+                    self.log_error(f"Could not identify what the tokens at {self.current_location} meant")
+                    ret = None
+
 
             else:
                 ret = None  # TODO: This
