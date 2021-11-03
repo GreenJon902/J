@@ -7,6 +7,8 @@ evaluateSectionBeforeCloseOperator = ")"
 
 additionOperator = "+"
 
+argumentSeparatorOperator = ","
+
 arithmeticOperators = [
     additionOperator
 ]
@@ -14,9 +16,12 @@ arithmeticOperators = [
 operators = [
     getAttributeOperator,  # Same as python . - __getattr__
     callOpenOperator, callCloseOperator,  # Same as python - call function
-    evaluateSectionBeforeOpenOperator, evaluateSectionBeforeCloseOperator,  # Same as python -
+    evaluateSectionBeforeOpenOperator, evaluateSectionBeforeCloseOperator,  # Same as python - change the order of
+                                                                            #                  evaluation
 
     "+",  # Same as python - add too integers
+
+    argumentSeparatorOperator  # Same as python - separate arguments
 ]
 # Identifier -----------------------------------------------------------------------------------------------------------
 valid_identifier_characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"

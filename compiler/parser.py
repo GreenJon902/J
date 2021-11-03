@@ -2,7 +2,7 @@ import pprint
 
 from betterLogger import ClassWithLogger, push_name_to_logger_name_stack
 
-from compiler.grammar import getAttributeOperator, callOpenOperator, callCloseOperator, arithmeticOperators
+from compiler.grammar import getAttributeOperator, callOpenOperator, callCloseOperator, argumentSeparatorOperator
 from compiler.structures import Token, Node
 from compiler.token_types import IDENTIFIER, OPERATOR, NEWLINE, INTEGER
 
@@ -39,11 +39,22 @@ class Parser(ClassWithLogger):
             self.log_dump(f"Current location is {self.current_location} which is "
                           f"\"{self.tokens[self.current_location]}\"")
 
+            # Identifier -----------------------------------------------------------------------------------------------
+            if self.tokens[self.current_location].type == IDENTIFIER:
+                self.log_debug("Current location identified as identifier")
+
+                node = Node(self.tokens[self.current_location], [])
+                self.log_debug(f"New Node is\n{node}")
+                current_node.contents.append(node)
+                current_node = node
+                self.bump_current_location(1)
+
+
             # Get attr -------------------------------------------------------------------------------------------------
-            if (self.tokens[self.current_location].type == IDENTIFIER
-                    and self.tokens[self.current_location + 1].type == OPERATOR
-                    and self.tokens[self.current_location + 1].contents == getAttributeOperator
-                    and self.tokens[self.current_location + 2].type == IDENTIFIER):
+            elif (self.tokens[self.current_location - 1].type == IDENTIFIER
+                    and self.tokens[self.current_location].type == OPERATOR
+                    and self.tokens[self.current_location].contents == getAttributeOperator
+                    and self.tokens[self.current_location + 1].type == IDENTIFIER):
                 self.log_debug("Current location identified as getAttribute")
 
                 getAttributeNode = Node(self.tokens[self.current_location + 1], [])
@@ -55,23 +66,23 @@ class Parser(ClassWithLogger):
 
 
             # Get call function ----------------------------------------------------------------------------------------
-            elif (self.tokens[self.current_location].type == IDENTIFIER
-                    and self.tokens[self.current_location + 1].type == OPERATOR
-                    and self.tokens[self.current_location + 1].contents == callOpenOperator):
+            elif (self.tokens[self.current_location - 1].type == IDENTIFIER
+                    and self.tokens[self.current_location].type == OPERATOR
+                    and self.tokens[self.current_location].contents == callOpenOperator):
                 self.log_debug("Current location identified as call")
 
 
-                token_before_bump_and_parse_expression = self.tokens[self.current_location]
-
-                self.bump_current_location(2)
-                arguments_ast = self.parse_expression(special_end=callCloseOperator)
+                self.bump_current_location(1)
+                arguments_ast = self.parse_expression(special_ends=(callCloseOperator, argumentSeparatorOperator))
                 self.log_dump(f"Got list of arguments as ast: \n{arguments_ast}")
 
-                node = Node(token_before_bump_and_parse_expression, [arguments_ast])
+                node = arguments_ast
                 self.log_debug(f"New Node is\n{node}")
                 current_node.contents.append(node)
                 current_node = node
 
+
+            # Newline --------------------------------------------------------------------------------------------------
             elif self.tokens[self.current_location].type == NEWLINE:
                 current_node = fileNode
                 self.log_dump(f"Finished line")
@@ -84,44 +95,52 @@ class Parser(ClassWithLogger):
         self.log_debug(f"Got ast:\n{fileNode}")
         return fileNode
 
-    def parse_expression(self, special_end=NEWLINE):
+    def parse_expression(self, special_ends: tuple[str, ] = None):
+        if special_ends is None:
+            special_ends = (NEWLINE,)
         self.push_logger_name(f"parse_expression({self.current_location})")
         self.log_dump(f"Parsing Expression at {self.current_location} which is "
                       f"\"{self.tokens[self.current_location]}\"")
 
+        left = None
+        operator = None
+        right = None
+        while True:
+            if self.tokens[self.current_location].type in special_ends or \
+                    self.tokens[self.current_location].contents in special_ends:  # End --------------------------------
+                self.log_trace(f"Expression ended at {self.current_location}")
+                self.bump_current_location(1)
+                break
 
-        # Expression end
-        if self.tokens[self.current_location].type == special_end or \
-                self.tokens[self.current_location].contents == special_end:
+            elif self.tokens[self.current_location].type != OPERATOR:  # Left ------------------------------------------
+                self.log_trace(f"Found a left side at {self.current_location}")
+
+                if self.tokens[self.current_location].type == INTEGER:
+                    left = self.tokens[self.current_location]
+                    self.log_trace(f"Left side at {self.current_location} was an integer that was {left}")
+                    self.bump_current_location(1)
+
+            else:  # Operator and right --------------------------------------------------------------------------------
+                self.log_trace(f"Found a right side at {self.current_location}")
+
+                if self.tokens[self.current_location + 1].type == INTEGER:
+                    operator = self.tokens[self.current_location]
+                    right = self.tokens[self.current_location + 1]
+
+                    self.log_trace(f"Right side at {self.current_location} was an operator that was {operator} and the "
+                                   f"trailing integer was {right}")
+
+                    self.bump_current_location(2)
+
+
+        if left is None:
             ret = None
 
-        # Arithmetic
-        elif (self.tokens[self.current_location].type == INTEGER
-                and self.tokens[self.current_location + 1].type == OPERATOR
-                and self.tokens[self.current_location + 1].contents in arithmeticOperators):  # 1 +
-            if self.tokens[self.current_location + 2].type == INTEGER:
-                if (self.tokens[self.current_location + 3].type == special_end
-                        or self.tokens[self.current_location + 3].contents == special_end):  # 1 + 1
-                    ret = Node(self.tokens[self.current_location + 1],
-                               (self.tokens[self.current_location], self.tokens[self.current_location + 2]))
-                    self.bump_current_location(4)
-
-                elif (self.tokens[self.current_location + 3].type == OPERATOR
-                        and self.tokens[self.current_location + 3].contents in arithmeticOperators):  # 1 + 1 +
-                    pass
-
-                else:
-                    self.log_error(f"Could not identify what the tokens at {self.current_location} meant")
-                    ret = None
-
-
-            else:
-                ret = None  # TODO: This
+        elif operator is None:
+            ret = left
 
         else:
-            self.log_error(f"Could not identify what the tokens at {self.current_location} meant")
-            ret = None
-
+            ret = Node(operator, [left, right])
 
         self.log_trace(f"Returning \n{ret}")
         self.pop_logger_name()
