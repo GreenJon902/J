@@ -1,3 +1,6 @@
+from compiler.token_types import IDENTIFIER, OPERATOR, INTEGER, NEWLINE
+
+
 class Token:
     type: str
     contents: str
@@ -9,6 +12,47 @@ class Token:
 
     def __repr__(self):
         return f"Token(type={self.type}, contents=\"{self.contents}\")"
+
+    @classmethod
+    def new(cls, token_type, token_value):
+        if token_type == IDENTIFIER:
+            return IdentifierToken(token_value)
+        elif token_type == OPERATOR:
+            return OperatorToken(token_value)
+        elif token_type == INTEGER:
+            return IntegerToken(token_value)
+        elif token_type == NEWLINE:
+            return NewlineToken()
+        else:
+            return Token(token_type, token_value)
+
+
+class NoneGenericToken(Token):
+    def __init__(self, contents):
+        Token.__init__(self, self.__class__.__name__, contents)
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}(contents=\"{self.contents}\")"
+
+
+class IdentifierToken(NoneGenericToken):
+    pass
+
+
+class OperatorToken(NoneGenericToken):
+    pass
+
+
+class IntegerToken(NoneGenericToken):
+    pass
+
+
+class NewlineToken(Token):
+    def __init__(self):
+        Token.__init__(self, self.__class__.__name__, None)
+
+    def __repr__(self):
+        return f"NewlineToken()"
 
 
 new_line = "\n"

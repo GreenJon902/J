@@ -80,7 +80,7 @@ class Lexer(ClassWithLogger):
         for token_type_to_check, function in token_types_to_check:
             token_value = function()
             if ret is None and token_value is not None:
-                ret = Token(token_type_to_check, token_value)
+                ret = Token.new(token_type_to_check, token_value)
                 self.log_debug(f"Token at {self.current_location} was an {token_type_to_check}, the value of the token "
                                f"was \"{token_value}\"")
 
