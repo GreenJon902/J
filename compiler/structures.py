@@ -3,15 +3,15 @@ from compiler.token_types import IDENTIFIER, OPERATOR, INTEGER, NEWLINE
 
 class Token:
     type: str
-    contents: str
+    content: str
 
     # noinspection PyShadowingBuiltins
     def __init__(self, type, contents):
         self.type = type
-        self.contents = contents
+        self.content = contents
 
     def __repr__(self):
-        return f"Token(type={self.type}, contents=\"{self.contents}\")"
+        return f"Token(type={self.type}, content=\"{self.content}\")"
 
     @classmethod
     def new(cls, token_type, token_value):
@@ -26,25 +26,35 @@ class Token:
         else:
             return Token(token_type, token_value)
 
+    def is_a(self, content):
+        return self.content == content
+
 
 class NoneGenericToken(Token):
+    type_name = None
+
     def __init__(self, contents):
         Token.__init__(self, self.__class__.__name__, contents)
 
     def __repr__(self):
-        return f"{self.__class__.__name__}(contents=\"{self.contents}\")"
+        return f"{self.__class__.__name__}(content=\"{self.content}\")"
+
+    def __eq__(self, other):
+        if self.type_name == other or self.content == other:
+            return True
+        return False
 
 
 class IdentifierToken(NoneGenericToken):
-    pass
+    type_name = IDENTIFIER
 
 
 class OperatorToken(NoneGenericToken):
-    pass
+    type_name = OPERATOR
 
 
 class IntegerToken(NoneGenericToken):
-    pass
+    type_name = INTEGER
 
 
 class NewlineToken(Token):
@@ -53,6 +63,11 @@ class NewlineToken(Token):
 
     def __repr__(self):
         return f"NewlineToken()"
+
+    def __eq__(self, other):
+        if other == NEWLINE or self.content == other:
+            return True
+        return False
 
 
 new_line = "\n"
