@@ -67,21 +67,22 @@ new_line = "\n"
 
 
 class Node:
-    type: Token
-    contents: list[Token]
+    left: Token
+    right: Token
+    type: str
 
     # noinspection PyShadowingBuiltins
-    def __init__(self, type, contents=None):
-        if contents is None:
-            contents = []
+    def __init__(self, type, left=None, right=None):
         self.type = type
-        self.contents = contents
+        self.left = left
+        self.right = right
 
     def __repr__(self):
-        return f"Node(type={repr(self.type)}, contents=\"{repr(self.contents)}\")"
+        return f"Node(type={self.type}, left=\"{repr(self.left)}\", right=\"{repr(self.right)}\")"
 
     def __str__(self, indent=0):
-        return f"{self.type}:\n" + "".join([("    " * (indent + 1)) + ((child.__str__(indent=indent + 1) if
-                                                                        isinstance(child, Node) else str(child)) +
-                                                                       new_line) for child in self.contents]).\
+        return f"{self.type}:\n" + "".join([("    " * (indent + 1)) +
+                                                          ((child.__str__(indent=indent + 1) if isinstance(child, Node)
+                                                            else str(child)) + new_line) for child in [self.left,
+                                                                                                       self.right]]).\
             removesuffix("\n")

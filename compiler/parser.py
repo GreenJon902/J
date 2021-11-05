@@ -3,6 +3,7 @@ import pprint
 from betterLogger import ClassWithLogger, push_name_to_logger_name_stack, get_logger
 
 from compiler.grammar import callOpenOperator, callCloseOperator
+from compiler.node_types import CALL_IDENTIFIER
 from compiler.structures import Token, Node
 from compiler.token_types import NEWLINE, OPERATOR, IDENTIFIER, INTEGER
 
@@ -27,6 +28,8 @@ class Parser(ClassWithLogger):
         self.log_debug("Getting ast for self")
         self.log_trace(f"Tokens are:\n{pprint.pformat(self.tokens)}")
 
+        nodes = []
+
         self.current_location = 0
         while self.current_location < len(self.tokens):
             self.log_dump(f"Current location is {self.current_location} which is "
@@ -34,7 +37,12 @@ class Parser(ClassWithLogger):
 
             line_tokens = self.get_from_current_location_to_newline()
             node = parse(line_tokens, logger=self)
-            print(node)
+            self.log_dump(f"Got \n{node}")
+            nodes.append(node)
+            self.current_location += len(line_tokens) + 1
+
+        self.log_debug(f"AST is \n{''.join([str(node) for node in nodes])}")
+        return nodes
 
     def get_from_current_location_to_newline(self):
         return get_tokens_until_end(self.tokens, NEWLINE, "token_type", start=self.current_location)
@@ -43,6 +51,8 @@ class Parser(ClassWithLogger):
 def parse(tokens, logger=None):
     if logger is None:
         logger = get_logger("Parser")
+    else:
+        logger.push_logger_name("parse()")
 
 
     if len(tokens) == 1:  # Simple ints and ids ect
@@ -55,14 +65,14 @@ def parse(tokens, logger=None):
             logger.log_error(f"Identified tokens as a call but first token is not an Identifier | tokens=\n"
                              f"{pprint.pformat(tokens)}")
         logger.log_dump("Identified tokens as a call")
-        node = Node(type=tokens[1], contents=[tokens[0],
-                                              parse(get_tokens_until_end(tokens[2:], (OPERATOR, callCloseOperator),
-                                                                         "token_values"), logger=logger)])
+        node = Node(type=CALL_IDENTIFIER, left=tokens[0],
+                    right=parse(get_tokens_until_end(tokens[2:], (OPERATOR, callCloseOperator), "token_values"),
+                                logger=logger))
         return node
 
-    else:
-        logger.log_error("Could not identify what tokens mean | tokens=\n"
-                             f"{pprint.pformat(tokens)}")
+
+    logger.log_error("Could not identify what tokens mean | tokens=\n"
+                         f"{pprint.pformat(tokens)}")
 
 
 def get_tokens_until_end(tokens, end, end_type, start=0):
