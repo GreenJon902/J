@@ -26,23 +26,21 @@ class Token:
         else:
             return Token(token_type, token_value)
 
-    def is_a(self, content):
-        return self.content == content
+    def is_type(self, other):
+        return self.type == other
+
+    def __eq__(self, other):
+        return self.type == other[0] and self.content == other[1]
 
 
 class NoneGenericToken(Token):
     type_name = None
 
     def __init__(self, contents):
-        Token.__init__(self, self.__class__.__name__, contents)
+        Token.__init__(self, self.type_name, contents)
 
     def __repr__(self):
         return f"{self.__class__.__name__}(content=\"{self.content}\")"
-
-    def __eq__(self, other):
-        if self.type_name == other or self.content == other:
-            return True
-        return False
 
 
 class IdentifierToken(NoneGenericToken):
@@ -59,15 +57,10 @@ class IntegerToken(NoneGenericToken):
 
 class NewlineToken(Token):
     def __init__(self):
-        Token.__init__(self, self.__class__.__name__, None)
+        Token.__init__(self, NEWLINE, None)
 
     def __repr__(self):
         return f"NewlineToken()"
-
-    def __eq__(self, other):
-        if other == NEWLINE or self.content == other:
-            return True
-        return False
 
 
 new_line = "\n"
