@@ -3,7 +3,6 @@ import pprint
 from betterLogger import ClassWithLogger, push_name_to_logger_name_stack, get_logger
 
 from compiler.grammar import callOpenOperator, callCloseOperator
-from compiler.node_types import CALL_IDENTIFIER
 from compiler.structures import Token, Node
 from compiler.token_types import NEWLINE, OPERATOR, IDENTIFIER, INTEGER
 
@@ -50,29 +49,43 @@ class Parser(ClassWithLogger):
 
 def parse(tokens, logger=None):
     if logger is None:
+        ln = False
         logger = get_logger("Parser")
     else:
-        logger.push_logger_name("parse()")
+        ln = True
+        logger.push_logger_name("<.parse()")
+
+    ast = None
+    current_location = 0
+    while current_location < len(tokens):
+        logger.log_dump(f"Current location is {current_location} which is "
+                        f"\"{tokens[current_location]}\"")
+
+        if tokens[current_location].is_type(IDENTIFIER):
+            logger.log_debug("Current location identified as identifier")
+            ast = tokens[current_location]
+            current_location += 1
+
+        elif tokens[current_location] == (OPERATOR, callOpenOperator):
+            logger.log_debug("Current location identified as call")
+
+            logger.push_logger_name(str(current_location))
+            args_tokens = get_tokens_until_end(tokens[2:], end=(OPERATOR, callCloseOperator), end_type="token_values")
+            args = parse(args_tokens, logger=logger)
+            logger.pop_logger_name()
+            ast = Node(type="callIdentifier", left=ast, right=args)
+
+            current_location += 1 + len(args_tokens) + 1
+
+        elif tokens[current_location].is_type(INTEGER):
+            logger.log_debug("Current location identified as integer")
+            ast = tokens[current_location]
+            current_location += 1
 
 
-    if len(tokens) == 1:  # Simple ints and ids ect
-        if tokens[0].is_type(INTEGER):
-            logger.log_dump("Identified token as an integer")
-            return tokens[0]
-
-    elif tokens[1] == (OPERATOR, callOpenOperator):
-        if not tokens[0].is_type(IDENTIFIER):
-            logger.log_error(f"Identified tokens as a call but first token is not an Identifier | tokens=\n"
-                             f"{pprint.pformat(tokens)}")
-        logger.log_dump("Identified tokens as a call")
-        node = Node(type=CALL_IDENTIFIER, left=tokens[0],
-                    right=parse(get_tokens_until_end(tokens[2:], (OPERATOR, callCloseOperator), "token_values"),
-                                logger=logger))
-        return node
-
-
-    logger.log_error("Could not identify what tokens mean | tokens=\n"
-                         f"{pprint.pformat(tokens)}")
+    if ln:
+        logger.pop_logger_name()
+    return ast
 
 
 def get_tokens_until_end(tokens, end, end_type, start=0):
