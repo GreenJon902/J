@@ -13,6 +13,10 @@ arithmeticOperators = [
     additionOperator
 ]
 
+arithmeticOperatorToName = {
+    "+": "plus"
+}
+
 operators = [
     getAttributeOperator,  # Same as python . - __getattr__
     callOpenOperator, callCloseOperator,  # Same as python - call function

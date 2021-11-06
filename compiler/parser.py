@@ -3,7 +3,8 @@ import sys
 
 from betterLogger import ClassWithLogger, push_name_to_logger_name_stack, get_logger
 
-from compiler.grammar import callOpenOperator, callCloseOperator, getAttributeOperator
+from compiler.grammar import callOpenOperator, callCloseOperator, getAttributeOperator, arithmeticOperators, \
+    arithmeticOperatorToName
 from compiler.structures import Token, Node
 from compiler.token_types import NEWLINE, OPERATOR, IDENTIFIER, INTEGER
 
@@ -59,39 +60,48 @@ def parse(tokens, logger=None):
     ast = None
     current_location = 0
     while current_location < len(tokens):
-        logger.log_dump(f"Current location is {current_location} which is "
+        logger.log_debug(f"Current location is {current_location} which is "
                         f"\"{tokens[current_location]}\"")
 
         if tokens[current_location].is_type(IDENTIFIER):
-            logger.log_debug("Current location identified as identifier")
+            logger.log_dump("Current location identified as identifier")
+            logger.log_trace(f"Identifier is {tokens[current_location]}")
             ast = tokens[current_location]
             current_location += 1
 
 
         elif tokens[current_location] == (OPERATOR, getAttributeOperator):
-            logger.log_debug("Current location identified as get attribute")
+            logger.log_dump("Current location identified as get attribute")
+            logger.log_trace(f"Attribute that's being gotten is {tokens[current_location + 1]}")
             ast = Node(type="GetAttr", left=ast, right=tokens[current_location + 1])
             current_location += 2
 
 
         elif tokens[current_location] == (OPERATOR, callOpenOperator):
-            logger.log_debug("Current location identified as call")
+            logger.log_dump("Current location identified as call")
 
-            logger.push_logger_name(str(current_location))
-            args_tokens = get_tokens_until_end(tokens[current_location+2:], end=(OPERATOR, callCloseOperator),
+            args_tokens = get_tokens_until_end(tokens[current_location+1:], end=(OPERATOR, callCloseOperator),
                                                end_type="token_values")
+            logger.log_trace(f"Argument tokens ate {args_tokens}")
+            logger.push_logger_name(str(current_location))
             args = parse(args_tokens, logger=logger)
             logger.pop_logger_name()
             ast = Node(type="callIdentifier", left=ast, right=args)
 
-            current_location += 1 + len(args_tokens) + 1
+            current_location += len(args_tokens) + 2
 
 
         elif tokens[current_location].is_type(INTEGER):
-            logger.log_debug("Current location identified as integer")
+            logger.log_dump("Current location identified as integer")
             ast = tokens[current_location]
             current_location += 1
 
+        elif tokens[current_location].is_type(OPERATOR) and tokens[current_location].content in arithmeticOperators:
+            logger.log_dump("Current location identified as arithmetic operator")
+            logger.log_trace(f"The operator in question is {tokens[current_location]}")
+            ast = Node(type=arithmeticOperatorToName[tokens[current_location].content], left=ast,
+                       right=tokens[current_location + 1])
+            current_location += 2
 
         else:
             logger.log_error("Could not figure out what tokens meant")
