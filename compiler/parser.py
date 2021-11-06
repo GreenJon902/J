@@ -1,8 +1,9 @@
 import pprint
+import sys
 
 from betterLogger import ClassWithLogger, push_name_to_logger_name_stack, get_logger
 
-from compiler.grammar import callOpenOperator, callCloseOperator
+from compiler.grammar import callOpenOperator, callCloseOperator, getAttributeOperator
 from compiler.structures import Token, Node
 from compiler.token_types import NEWLINE, OPERATOR, IDENTIFIER, INTEGER
 
@@ -66,21 +67,36 @@ def parse(tokens, logger=None):
             ast = tokens[current_location]
             current_location += 1
 
+
+        elif tokens[current_location] == (OPERATOR, getAttributeOperator):
+            logger.log_debug("Current location identified as get attribute")
+            ast = Node(type="GetAttr", left=ast, right=tokens[current_location + 1])
+            current_location += 2
+
+
         elif tokens[current_location] == (OPERATOR, callOpenOperator):
             logger.log_debug("Current location identified as call")
 
             logger.push_logger_name(str(current_location))
-            args_tokens = get_tokens_until_end(tokens[2:], end=(OPERATOR, callCloseOperator), end_type="token_values")
+            args_tokens = get_tokens_until_end(tokens[current_location+2:], end=(OPERATOR, callCloseOperator),
+                                               end_type="token_values")
             args = parse(args_tokens, logger=logger)
             logger.pop_logger_name()
             ast = Node(type="callIdentifier", left=ast, right=args)
 
             current_location += 1 + len(args_tokens) + 1
 
+
         elif tokens[current_location].is_type(INTEGER):
             logger.log_debug("Current location identified as integer")
             ast = tokens[current_location]
             current_location += 1
+
+
+        else:
+            logger.log_error("Could not figure out what tokens meant")
+            print(ast)
+            sys.exit()
 
 
     if ln:
